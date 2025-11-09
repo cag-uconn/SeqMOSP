@@ -1,0 +1,317 @@
+\section{Characterization}
+
+Runtime breakdown:
+\begin{itemize}
+    \item OPEN extraction time
+    \item Dominance check P/COSTS
+    \item Dominance check GOP/GCL
+    \item Prune P/COSTS
+    \item Prune GOP/GCL
+    \item Prune OPEN/GOP
+    \item Update time
+\end{itemize}
+\begin{figure}
+    \centering
+    \includegraphics[width=1.1\linewidth]{magmo/figs/runtime breakdown.png}
+    \caption{Runtime Breakdown in order or Increasing Labels DIMACS NY}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.1\linewidth]{magmo/figs/runtime breakdown_NOHOLES.png}
+    \caption{Runtime Breakdown in order or Increasing Labels DIMACS NY NO HOLES}
+    \label{fig:placeholder}
+\end{figure}
+
+Label breakdown:
+\begin{itemize}
+    \item Extracted
+    \item Expanded
+    \item Generated
+    \item Inserted
+\end{itemize}
+Label lifecycle distribution:
+expanded, (extracted-expanded), (inserted-extracted), (generated-inserted)
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.1\linewidth]{magmo/figs/pkl_runtime_breakdown.png}
+    \caption{Runtime Breakdown in order or Increasing Labels PKL }
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.1\linewidth]{magmo/figs/pkl_runtime_breakdownNOHOLES.png}
+    \caption{Runtime Breakdown in order or Increasing Labels PKL NO HOLES ALGO}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{magmo/figs/MAG stage breakdown CPU.png}
+    \caption{CPU runtime breakdown per stage}
+    \label{fig:placeholder}
+\end{figure}
+
+Number of dominance checks
+
+
+
+
+Average label latency: runtime/Labels processed
+\begin{table}[htbp]
+\caption{Performance Metrics of Different Algorithms (DIMACS)}
+\begin{center}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Algo} & \makecell{\textbf{Dominance}\\\textbf{Checks}} & \makecell{\textbf{Labels}\\\textbf{Processed}} & \textbf{Latency} & \textbf{Throughput} & \makecell{\textbf{Checks/}\\\textbf{Label}} \\
+\hline
+1 & 19\,970\,796\,949 & 3\,593\,792 & 2.35E-05 & 42\,599.20 & 5\,557 \\
+\hline
+2 & 30\,458\,761\,118 & 3\,701\,130 & 2.79E-05 & 35\,786.10 & 8\,230 \\
+\hline
+3 & 33\,471\,120\,546 & 4\,067\,899 & 2.17E-05 & 46\,113.60 & 8\,228 \\
+\hline
+4 & 19\,544\,490\,792 & 10\,984\,669 & 5.65E-06 & 176\,973.50 & 1\,779 \\
+\hline
+5 & 17\,316\,325\,383 & 10\,984\,669 & 5.48E-06 & 182\,450.00 & 1\,576 \\
+\hline
+\end{tabular}
+\label{tab:algo_metrics_new}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Performance Metrics of Different Algorithms (DIMACS NO HOLES)}
+\begin{center}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Algo} & \makecell{\textbf{Dominance}\\\textbf{Checks}} & \makecell{\textbf{Labels}\\\textbf{Processed}} & \textbf{Latency} & \textbf{Throughput} & \makecell{\textbf{Checks/}\\\textbf{Label}} \\
+\hline
+1 & 19\,972\,477\,998 & 3\,593\,792 & 1.88E-05 & 53\,119.90 & 5\,557 \\
+\hline
+2 & 30\,460\,402\,820 & 3\,701\,130 & 2.27E-05 & 44\,084.65 & 8\,230 \\
+\hline
+3 & 33\,471\,065\,550 & 4\,067\,899 & 2.21E-05 & 45\,325.86 & 8\,228 \\
+\hline
+4 & 19\,544\,432\,630 & 10\,984\,669 & 5.68E-06 & 176\,028.03 & 1\,779 \\
+\hline
+5 & 17\,316\,325\,383 & 10\,984\,669 & 5.48E-06 & 182\,449.99 & 1\,576 \\
+\hline
+\end{tabular}
+\label{tab:algo_metrics_new}
+\end{center}
+\end{table}
+
+
+
+\begin{table}[htbp]
+\caption{Performance Metrics of Different Algorithms (PKL)}
+\begin{center}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Algo} & \makecell{\textbf{Dominance}\\\textbf{Checks}} & \makecell{\textbf{Labels}\\\textbf{Processed}} & \textbf{Latency} & \textbf{Throughput} & \makecell{\textbf{Checks/}\\\textbf{Label}} \\
+\hline
+1 & 8\,225\,025\,265 & 290\,281 & 2.18E-04 & 4\,583 & 28\,335 \\
+\hline
+2 & 11\,074\,271\,144 & 433\,341 & 1.17E-04 & 8\,525 & 25\,556 \\
+\hline
+3 & 13\,025\,580\,242 & 931\,023 & 4.13E-05 & 24\,191 & 13\,991 \\
+\hline
+4 & 7\,566\,974\,873 & 2\,603\,992 & 9.84E-06 & 101\,626 & 2\,906 \\
+\hline
+5 & 6\,792\,867\,119 & 2\,603\,992 & 9.38E-06 & 106\,585 & 2\,609 \\
+\hline
+\end{tabular}
+\label{tab:algo_metrics_new}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Performance Metrics of Different Algorithms (PKL NO HOLES)}
+\begin{center}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Algo} & \makecell{\textbf{Dominance}\\\textbf{Checks}} & \makecell{\textbf{Labels}\\\textbf{Processed}} & \textbf{Latency} & \textbf{Throughput} & \makecell{\textbf{Checks/}\\\textbf{Label}} \\
+\hline
+1 & 8\,103\,239\,809 & 290\,281 & 1.52E-04 & 6\,574.11 & 27\,915.13 \\
+\hline
+2 & 10\,801\,312\,904 & 433\,341 & 8.40E-05 & 11\,907.98 & 24\,925.68 \\
+\hline
+3 & 13\,025\,576\,241 & 931\,023 & 4.16E-05 & 24\,061.38 & 13\,990.61 \\
+\hline
+4 & 7\,566\,971\,010 & 2\,603\,992 & 9.97E-06 & 100\,275.71 & 2\,905.91 \\
+\hline
+5 & 6\,792\,867\,119 & 2\,603\,992 & 9.38E-06 & 106\,584.59 & 2\,608.64 \\
+\hline
+\end{tabular}
+\label{tab:algo_metrics_new}
+\end{center}
+\end{table}
+
+We may want to track the number of labels in GCL at the end 
+
+
+DIMACS NY road network graphs:
+\begin{itemize}
+    \item L-noH, L-namoa: 5, 2, 29, 39, 44, 48, \textbf{35}
+    \item M-noH, L-namoa: 47, 46, \textbf{50}, 21, 30, 4
+    \item M-noH, M-namoa: 31, 16, 41, \textbf{6}, 7
+    \item M2-noH, L-namoa: 20, \textbf{15}, \red{1}
+    \item M2-noH, M-namoa: 26, \textbf{37}, 18, 49, 24, 22, 19
+    \item H-noH, L-namoa: 40, \textbf{17}, 28, 34, 11
+    \item H2-noH, L-namoa: 10, 42, \textbf{25}, 32
+    \item H2-noH, M-namoa: \textbf{8}, 45, 33, 12, 36, 14, 13
+    \item H2-noH, H-namoa: \blue{38}, 3, 9, 43, 27, 23
+\end{itemize}
+
+Increasing noH routes: 35, 50, 21, 6, 16, 30, 15, 37, 1, 11, 17, 10, 25, 8, 38
+
+
+Both runtime and label behavior of five MOA variants were analyzed across different routes and graphs. Each algorithm was evaluated in terms of runtime components with respect to the label operations, and dominance check activity (Figure 4, 5). Across all algorithms, dominance checks account for the largest share of computation time while contribution of other components varies based on the algorithm. Algorithm 1 performed the full pruning operations, establishing the baseline for the overall number of dominance checks. Algorithm 4 performed well across all routes by processing the highest number of labels but maintaining baseline number of dominance checks what resulted in the extremely lightweight per-label dominance checks. Algorithm 5 achieved the best overall performance by further reducing the total number of dominance checks compared to Algorithm 4 (Table 1, 2). Dominance checks per label ratio demonstrates that it is more efficient to process many labels cheaply than to process fewer labels at a higher cost. This highlights that overall efficiency depends not just on the total number of labels, but on how economically each label is handled within the algorithm.
+
+
+NEXT STEPS: 
+\begin{itemize}
+\item 1. Fix OPMOS algo 1. Cost array convert to a vector,  G.OP.DEL, G.CL.DEL also to vectors. Currently running out of G.OP.DEL, COST for small lsi routes with N=1
+\item 2. Add modifications to all algos. Start with algo 4 (goal node doesn't have a g.CL entry then
+whe don't need to do dom g.CL AND PRUNE.GCL on goal nodes: algo 1 (16, 17), Algo 4(4,5))
+\item 3. Convert algo 4 sequential to ompos with no separate bags 
+\item 4. Additional ideas: Parallel CPU simd execution with vectorization for algo 1. We have 4x128 simd units, thus we can process 8 labels at a time ( 128/2 = 62  . 8 labels 32 each )
+\end{itemize}
+\subsubsection{Item 2: Algo 1-4 (Modified) with no Gcl operations on goal node: }
+
+
+\begin{algorithm}
+\captionsetup{font=small}
+\footnotesize
+\caption{Algo 1 move G\_CL outside the neighbors: NAMOA* MO Algorithm}\label{alg:NAMOA_new}
+\begin{algorithmic}[1]
+    \While{OPEN $\neq \emptyset$}
+        \State $l \gets \text{OPEN.pop()}$
+        \State $G_{OP}(v(l)).\text{remove}(l)$
+        \State $G_{CL}(v(l)).\text{insert}(l)$
+        \If{$v(l) = v_g$}
+            \State Prune($\text{OPEN}, l, \hat{f}$)
+            \State Prune($P, l, \hat{f}$) \Comment{skip, if PQ OPEN}
+            \If{NotDominated($l, P, \hat{f}$)}
+                \State $P.\text{insert}(l)$
+            \EndIf
+        \Else \If{NotDominated($l',G_{CL} (v(l')),\Hat{g}$)}
+            \State Prune($G_{CL}(v(l')),l',\Hat{g})$ \Comment{skip, if PQ OPEN}
+            \EndIf
+             \ForAll {$v'\in$ GetNeighbors($v(l)$)}
+                   
+                    \If{NotDominated($l', P, \hat{f}$) \textbf{and} NotDominated($l', G_{OP}(v(l')), \hat{g}$)}
+                    \Comment{skip, if PQ OPEN}
+                    \State Prune($G_{OP}(v(l')), l', \hat{g}$)
+                    \State OPEN.insert($l'$)
+                    \State $G_{OP}(v(l')).\text{insert}(l')$
+                \EndIf
+            \EndFor
+        \EndIf
+    \EndWhile
+    \State \Return $P$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\captionsetup{font=small}
+\footnotesize
+\caption{ALgo 2: moved GCL operations before neighbor expansion NAMOA* variant MO Algorithm}\label{alg:NAMOA2025_new}
+\begin{algorithmic}[1]
+    \While{OPEN $\neq \emptyset$}
+        \State $l \gets$ OPEN.pop()
+        \State $G_{OP}(v(l))$.remove($l$)
+        \If{NotDominated(l, P, $\Hat{f}$)}
+            \State $G_{CL}(v(l))$.insert($l$)
+            \If{$v(l)=v_g$}
+                \State Prune($P, l, \Hat{f})$ \Comment{skip, if PQ OPEN}
+                \State $P$.insert($l$)
+            \Else \If{NotDominated($l',G_{CL} (v(l')),\Hat{g}$)}
+            \State Prune($G_{CL}(v(l')),l',\Hat{g})$ \Comment{skip, if PQ OPEN}
+            \EndIf
+                \ForAll {$v'\in$ GetNeighbors($v(l)$)}
+                    \State $l'\gets (v', \hat{g}(l) + \hat{c}(v(l),v'))$; parent($l'\gets l$)
+                    \State $\Hat{f}(l')\gets \hat{g}(l') + \hat{h}(v(l'))$
+                    \If{NotDominated($l', P,\Hat{f}$) \textbf{and}\\
+                   
+                    \hspace{7.1em}NotDominated($l',G_{OP}(v(l')),\Hat{g}$)}
+                    
+                    \State Prune($G_{OP}(v(l')),l',\Hat{g})$
+                    \State OPEN.insert($l'$)
+                    \State $G_{OP}(v(l'))$.insert($l'$)
+                    \EndIf
+                \EndFor
+            \EndIf 
+        \EndIf
+    \EndWhile
+    \State \Return $P$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\captionsetup{font=small}
+\footnotesize
+\caption{Algo 3: LTMOA* Linear Time MO Algorithm (Modified to skip GCL operations for goal nodes)}\label{alg:LTMOA_Mod_new}
+\begin{algorithmic}[1]
+    \While{OPEN $\neq \emptyset$}
+        \State $l \gets$ OPEN.pop()
+        \If{NotDominated($l, P, \Hat{f}$)}
+            \If{$v(l) = v_g$}
+                \State Prune($P, l, \Hat{f}$) \Comment{Skip if PQ OPEN. EMOA* does not skip!}
+                \State $P$.insert($l$)
+            \Else
+                
+                \ForAll {$v'\in$ GetNeighbors($v(l)$)}
+                    \State $l'\gets (v', \hat{g}(l) + \hat{c}(v(l),v'))$; parent($l'\gets l$)
+                    \State $\Hat{f}(l')\gets \hat{g}(l') + \hat{h}(v(l'))$
+                    \If{NotDominated($l', P,\Hat{f}$) \textbf{and}\\
+                    \hspace{7.1em}NotDominated($l',G_{CL} (v(l')),\Hat{g}$)}
+                        %\State Prune($G_{CL}(v(l')),l',\Hat{g})$ \Comment{skip, if PQ OPEN}
+                        %\State Prune($G_{OP}(v(l')),l',\Hat{g})$
+                        \State Prune($G_{CL}(v(l)), l, \Hat{g}$) 
+                        \State $G_{CL}(v(l))$.insert($l$)
+                        \State OPEN.insert($l'$)
+                        %\State $G_{OP}(v(l'))$.insert($l'$)
+                    \EndIf
+                \EndFor
+            \EndIf
+        \EndIf
+    \EndWhile
+    \State \Return $P$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\captionsetup{font=small}
+\footnotesize
+\caption{Algo 4: LazyLTMOA* Variant of LTMOA* (Modified to skip GCL operations for goal nodes)}\label{alg:LazyLTMOA_Mod_new}
+\begin{algorithmic}[1]
+    \While{OPEN $\neq \emptyset$}
+        \State $l \gets$ OPEN.pop()
+        \If{NotDominated($l, P, \Hat{f}$)}
+            \If{$v(l) = v_g$}
+                \State Prune($P, l, \Hat{f}$) \Comment{Skip if PQ OPEN. EMOA* does not skip!}
+                \State $P$.insert($l$)
+            \ElsIf {NotDominated($l, G_{CL}(v(l)), \Hat{g}$)} 
+                \State Prune($G_{CL}(v(l)), l, \Hat{g}$) 
+                \State $G_{CL}(v(l))$.insert($l$)
+                \ForAll{$v' \in$ GetNeighbors($v(l)$)} 
+                    \State $l' \gets (v', \hat{g}(l) + \hat{c}(v(l),v'))$; parent($l') \gets l$
+                    \State $\Hat{f}(l') \gets \hat{g}(l') + \hat{h}(v(l'))$
+                    \State OPEN.insert($l'$)
+                \EndFor
+            \EndIf
+        \EndIf
+    \EndWhile
+    \State \Return $P$
+\end{algorithmic}
+\end{algorithm}
+
