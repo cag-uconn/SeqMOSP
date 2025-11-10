@@ -46,14 +46,13 @@
 %% ADD YOUR OTHER PACKAGES ABOVE THIS LINE
 
 %%%%%%%%%%% ---SETME-----%%%%%%%%%%%%%
-\newcommand{\iiswcsubmissionnumber}{XX}
+%\newcommand{\iiswcsubmissionnumber}{XX}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \fancypagestyle{firstpage}{
   \fancyhf{}
   \renewcommand{\headrulewidth}{0pt}
-  \fancyhead[C]{\vspace{10pt}\normalsize{2025 Submission
-      \textbf{\#\iiswcsubmissionnumber} -- Confidential Draft -- Do
+  \fancyhead[C]{\vspace{10pt}\normalsize{ Confidential Draft -- Do
       NOT Distribute!!} \\\vspace{-25pt}} 
   \fancyfoot[C]{\thepage}
 }
@@ -101,8 +100,7 @@
 
 
 \begin{abstract}
-Dynamic graph optimization problems are traditionally confined to a single optimization constraint. However, many real-world decision-making applications require considering multiple, often competing, objectives. Multi-objective optimization algorithms have been found to have exponential time and space complexity, preventing the use of existing graph frameworks. Literature lacks a systemic methodology for the computational acceleration of multi-objective optimization in graph settings. Such a framework should enable the efficient generation of multi-attribute graphs (MAGs) from real-world datasets and apply hardware acceleration to multi-objective optimization (MO), laying the groundwork for real-time decision-making applications. 
-This paper presents MAGMO, a novel framework for multi-objective graph optimizations, and makes the following contributions: 1) A full end-to-end multi-objective graph framework that takes real-world applications from marine (TMPLAR) and road network (DIMACS) applications, using real input data to build MAGs, and applying MO to generate cost-unique Pareto-optimal solutions. 2) With a focus on multi-objective shortest path (MOSP) as a challenge problem, the characterization and comparison of four sequential algorithms are explored, identifying this NP-hard MO problem as the key performance bottleneck in MAGMO. 3) Sequential characterization exposes the key challenges for MOSP acceleration center around operations on unstructured graph data. 4) Prior work has explored parallelism in MOSP; however, based on the insights from MOSP characterization, novel parallel algorithms are proposed, showing the performance calling potential on modern parallel machines. An experimental evaluation using the NVIDIA GH200 Superchip’s 72-core Arm-based CPU demonstrates the performance scaling potential of the MAGMO framework as a system that enables end-to-end multi-objective optimization in real-world applications.
+
 \end{abstract}
 
 

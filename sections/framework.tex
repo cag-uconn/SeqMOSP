@@ -1,78 +1,10 @@
-\section{MAGMO Framework}
+\section{Sequential MOSP}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figs/ECHO.png}
-    \caption{MAGMO Dataflow}
-    \label{fig:magmo}
-\end{figure}
+This paper characterizes the computational performance of the NP-hard multi-objective shortest path (MOSP) problem. Given a weighted graph with non-negative edge weights, the shortest path problem computes the minimum-cost path from a start node to a goal/destination node in the graph~\cite{tarjan_book}. In a multi-objective setting, each edge is given a non-negative cost vector (constant length for each edge in a graph), with each element corresponding to an objective. When these objectives conflict, no single path can optimize all of them simultaneously. MOSP aims to find a set of Pareto-optimal (non-dominated) solution paths, where a path is Pareto-optimal if no single objective of the path can be improved without causing at least one of the other objectives to deteriorate in quality. During execution, the intermediate path cost vectors form the so-called \textit{Pareto-optimal labels} that comprise potential candidate solutions. However, computing this front is computationally hard \cite{serafini_1987, hansen_1980, BREUGEM_2017, Ehrgott_2005, Papadimitriou_2000}. As the number of objectives and nodes increases, so does the computational complexity and the number of Pareto-optimal solution paths~\cite{Ren2022}. 
 
-% ToMAtO: Tool for Multi-Attribute-graph Optimization
-
-% ToMAGO: Tool for Multi-Attribute Graph Optimization
-
-% ToMOGO: Tool for Multi-Objective Graph Optimization
-
-% MAGOT: Multi-Attribute Graph Optimization Tool
-
-Prior works on multi-objective graph optimization struggle to find real-world graphs with high numbers of objectives. Additionally, open-source MO algorithms have distinct input data structures, making it difficult to compare competing solutions. We propose MAGMO, a framework for performing multi-objective optimization (MO) on generated multi-attribute graphs (MAGs), to address the challenges facing multi-objective graph optimization. As shown in Figure~\ref{fig:magmo}, MAGMO extracts a graph from real-world datasets, computes the multi-attribute edge costs, generates any required heuristics, and feeds these inputs into a multi-objective optimization algorithm. Each stage is optional and modified depending on the workload. The following discussion shows how an existing multi-objective application, the Tool for Multi-objective Planning and Asset Routing (TMPLAR), is mapped on MAGMO to perform naval vessel navigation on real-world land-sea graphs.
-
-\subsection{Multi-Attribute Graphs (MAG)}
-\begin{figure*}
-        \centering
-    \includegraphics[width=0.9\linewidth]{figs/Graph Transition.png}
-    \caption{Graph Generation Phase}
-    \label{fig:ge}
-\end{figure*}
-% want to support non-convex inputs since these are often needed in real-world applications. In addition to spatial information need temporal information to take into account time-evolving data and do things that require dynamic information for multi-objective optimization problems. 
-% need to expand with spatial and temporal information. but this grows the number of nodes, which gives exponential growth in complexity, so we need to reduce this graph. to further understand this, take a look at motion planning
-% motion planning as a case study to explore how this can be done
-MAGMO introduces a standard format for MAGs. The graphs are stored in a compressed format for the input graph (usually compressed sparse row (CSR)), with a separate value array for each objective. MAGMO loads existing MAGs in this format and feeds them into the subsequent stages of the pipeline. For new graphs, MAGMO exposes two phases for graph construction: a graph extraction phase to extract a usable graph from input datasets, and an edge-cost computation phase to compute the edge costs for each objective. For graphs with preset edge costs (such as those in the DIMACS dataset [ref]), the graph and its edge costs are extracted in a single phase, and the edge cost computation is skipped. These two phases are explored in more detail.
-
-\subsubsection{Graph Extraction}
-
-Many real-world applications consider objective functions that form a non-convex optimization space. Such objective inputs require information not only on the physical locations but also on time. Expanding spatial graphs with temporal information allows for the use of time-varying data and more complex dynamic optimization. However, the temporal state expansion leads to an order-of-magnitude increase in the number of nodes. We know from Section~\ref{sec:bg} that the complexity of optimization increases exponentially with the number of nodes. Therefore, a reduction of the search space is performed after time expansion to allow tractable computation. A motion planning case study is presented to understand this process. 
-
-Consider a naval vessel navigating through the ocean. A land/sea map is provided to show the valid navigable positions (sea) and the impassable locations (land). Using this map, each sea location becomes a node in the graph. Edges between these nodes are formed by connecting each node to its neighboring sea nodes. As shown in Figure~\ref{fig:ge}a, a constraint is given on the number of rings around the source node to search for neighbors. Increasing the number of ``hops'' allows for smoother navigation at the cost of increased connectivity (and therefore complexity). In the given example, one hop forms a ring with the eight immediate neighbors of a node, while two hops adds 16 more distant neighbors for a total of 24. Repeating this process for all valid nodes creates a spatial graph that is used in scenarios where routing is constrained to geographical feasibility alone. 
-
-Temporal state metadata is added to the graph to enable realistic modeling of routing conditions and to account for time-dependent data such as vessel speed, weather, and operational schedules. The operator specifies a source node $v_s$ to estimate the time of arrival at each node $v_i$ in the graph. The minimum distance $\ell_i$ from $v_s$ to each node $v_i$ in the graph is found using a single-source shortest-path (SSSP) algorithm. With the naval navigation example, the Rhumb line distance between two nodes is used as the cost function for SSSP. Using $\ell_i$ and operator-specified vehicle speed constraints $V_{\text{min}}$ and $V_{\text{max}}$ (minimum and maximum velocity, respectively), the minimum ($T_{a,\text{min}}$) and maximum ($T_{a,\text{max}}$) time of arrival at each node $v_i$ is calculated. Using these time constraints, each node $v_i$ is expanded into multiple nodes representing discrete time intervals between $T_{a,\text{min}}$ and $T_{a,\text{max}}$. This enables routing with variable speed through realistic travel conditions. However, the resulting graph can have an order of magnitude increase in the number of nodes, resulting in a larger search space with an exponential increase in complexity.
-
-To address the resulting increase in complexity, the operator supplies an upper and lower bound on the time of arrival at the destination, $T_{f,\text{max}}$ and $T_{f,\text{min}}$, respectively. Using an additional SSSP with the source set to the destination $v_f$, the minimum distance from the destination to each node $\ell_{b,i}$ is calculated. This allows the question to be answered: when must the vessel leave a node to reach the destination within the arrival constraints? Using $\ell_{b,i}$, and the $T_f$ and $V$ constraints, the corresponding minimum and maximum departure times for each node is are calculated ($T_{d,\text{min}}$ and $T_{d,\text{max}}$ respectively). Overlapping the arrival and departure time windows creates the earliest and latest times that the vessel can arrive at every node such that the vessel is still able to arrive at the destination, subject to the $T_f$ constraints. For a given node $v_i$, the time bounds are given by 
-\begin{equation}
-    T_{\text{min}}=\max(T_{a,\text{min}},T_{d,\text{min}})
-\end{equation}
-\begin{equation}
-    T_{\text{max}}=\min(T_{a,\text{max}},T_{d,\text{max}})
-\end{equation}
-such that if $T_{min}\leq T_{max}$ then it is feasible to arrive at a node and depart in time to reach the destination. However, if $T_{min} > T_{max}$, then the node cannot be feasibly reached during the path planning, and thus pruned from the graph (Figure~\ref{fig:ge}b. This reduction in the search space (and number of nodes) leads to an improvement in the computational complexity of MO.
-
-For the remaining nodes with valid time windows, each node is expanded into multiple nodes representing discrete times of arrival between $T_{\text{min}}$ and $T_{\text{max}}$ (Figure~\ref{fig:ge}c). The number of temporal nodes per geographic node is specified by the operator. Now, edges need to be formed between the time-expanded and state-spaced-reduced nodes. For a given node (with a given geographic and time state), all time-expanded nodes geographically adjacent (subject to the same ``hops'' constraint used in the spatial graph) are explored. The speed required to get to each adjacent node is calculated using the Rhumb line distance and the difference between the time states. If this meets the required speed constraints specified by the operator ($V_{\text{min}}$ and $V_{\text{max}}$), then the edge is added to the graph. Otherwise, the edge is not included. The resulting graph (Figure~\ref{fig:ge}d) reflects not only feasible states, but also valid methods of getting to each state. Additionally, by adding temporal data to the spatial graph, time-varying data can now be considered. 
-%The computation of this multi-objective cost data will now be discussed.
-
-
-\subsubsection{Edge Cost Computation}
-
-% 1 - we can create a bunch of objectives
-% 2- cannot be preprocessed into a single objective. Need to justify why we need a bunch of objectivess
-A key component of MAG is multiple attributes or objectives on the graph. In MAGMO, this is represented by separate edge-cost value arrays for each objective that can be independently computed. MAGMO offers a modular interface for connecting different objective functions for different applications. For example, TMPLAR considers many vessel dynamics and weather objective functions to improve navigation. These include time, fuel, roll, pitch, vertical acceleration (V.ACCEL), horizontal acceleration (H.ACCEL), vertical bending moment (VBM), vertical shear force (VSF), wave height ($H_s$), wave period ($T_0$), and the relative sea direction ($\theta$). The general computational structure of TMPLAR objective costs is described next. 
-%Each edge has a source node $v_s$ and a destination node $v_n$.
-
-The time objective is calculated as the time delta ($\Delta t$) between the time state at the source node and the time state at the destination node. The wave height ($H_s$), wave period ($T_0$), and sea direction ($Dir$) are pulled from the latest ERA5 forecast data closest to the location and time state at each node. The relative sea direction ($\theta$) is calculated as the smallest angular distance between the vehicle's bearing and $Dir$, the sea direction. The Rhumb-line distance ($Dist$) is found between the two nodes, and the speed $s$ is then derived as the ratio $Dist/\Delta t$.
-
-Multiple routing-related objectives are calculated using precomputed empirical datasets. These datasets store measured responses under varying operational and environmental conditions. Using five computed parameters ($Dist$, $s$, $H_s$, $T_0$, $\theta$), the closest match in the empirical dataset for an objective is derived using the Manhattan distance (L1-norm) method. For example, the fuel objective is precomputed by modeling the required propulsive power in calm water as in [37], as well as the power required by the added resistance of waves [38]. Optimizing fuel consumption involves tradeoffs with minimizing distance traveled and navigating areas of weather uncertainty. 
-Therefore, it uses the speed, distance, and meteorology parameters for its computation.
-
-The vessel's structural load objectives (V.ACCEL, H.ACCEL, VBM, and VSF) are crucial for minimizing wear and tear, thereby decreasing the amount of required maintenance and extending the vessel’s lifespan [39]. Moreover, the sea-keeping objectives (roll and pitch) reflect the vessel's ability to maintain stability and course in wave conditions. These objectives also use the five parameters ($Dist$, $s$, $H_s$, $T_0$, $\theta$) to look up precomputed empirical datasets derived from nonlinear wave-load analysis [40].
-
-%Optimizing fuel consumption as an objective can results in trade-offs with minimizing distance traveled, especially in cases where the shortest distance path passes through an area of severe/hazardous weather. Often passing through such areas of high weather uncertainty increases overall fuel usage, while taking a diverting route around the severe weather zones often reduces fuel usage at the cost of increasing the overall distance of the journey. The ship response objectives are crucial for minimizing the ship’s wear-and-tear, thereby decreasing the amount of required maintenance and extending the vessel’s lifespan[39]. These parameters are calculated using a nonlinear wave-load analysis [40].
-
-\subsection{Multi-Objective Graph Optimizations (MO)}
-
-MAGMO explores the NP-hard multi-objective shortest path as a representative MO problem. Given a weighted graph with non-negative edge weights, the shortest path problem computes the minimum-cost path from a start node to a goal/destination node in the graph~\cite{tarjan_book}. In a multi-objective setting, each edge is given a non-negative cost vector (constant length for each edge in a graph), with each element corresponding to an objective. When these objectives conflict, no single path can optimize all of them simultaneously. MO aims to find a set of Pareto-optimal (non-dominated) solution paths, where a path is Pareto-optimal if no single objective of the path can be improved without causing at least one of the other objectives to deteriorate in quality. During execution, the intermediate path cost vectors form the so-called \textit{Pareto-optimal labels} that comprise potential candidate solutions. However, computing this front is computationally hard \cite{serafini_1987, hansen_1980, BREUGEM_2017, Ehrgott_2005, Papadimitriou_2000}. As the number of objectives and nodes increases, so does the computational complexity and the number of Pareto-optimal solution paths~\cite{Ren2022}. 
-
-Consider an input graph $G=(V,E,c)$ with a set of nodes $V$ and edges $E$. For each edge $e \in E$, there is a non-negative cost vector ${c}(e)$ of length $d$ objectives. Given a source node $v_s$ and a goal node $v_g$ in the graph $G$, the path from $v_s$ to an intermediate node $v$ is defined as a label\footnote{MO literature also identifies a label as a candidate path~\cite{Ren2022, MARTINS198485, sanders_ipdps13}.} $l=(v,\hat{g})$, a tuple represented by a sequence of nodes where each node is connected to its predecessor on the path and $\hat{g}$ denotes the path cost vector from $v_s$ to $v$, calculated as the sum of the cost vectors $c(e)$ for all edges present on the path. For simplicity, we denote $v(l)$ to be the vertex and $\hat{g}(l)$ to be the cost vector contained in $l$.
-Since multiple objectives may compete, MO introduces a dominance check such that given two labels $l$ and $l^*$ with $d$ objectives, $l$ dominates $l^*$ (denoted $l \succeq l^*$) if and only if they share the same node ($v(l)=v(l^*)$) and $\hat{g}(l) \succeq \hat{g}(l^*)$ (i.e., $\hat{g}(l)[i] \leq \hat{g}(l^*)[i], \forall i \in {1,2,...,d}$, and $\hat{g}(l)[i] < \hat{g}(l^*)[i], \exists i \in {1,2,...,d}$). 
-All non-dominated paths from $v_s$ to $v_g$ constitute the \emph{Pareto-optimal} solution set. MO aims to find a \emph{cost-unique} Pareto-optimal solution set where no two labels in the subset have the same cost vector. 
+Consider an input graph $G=(V,E,c)$ with a set of nodes $V$ and edges $E$. For each edge $e \in E$, there is a non-negative cost vector ${c}(e)$ of length $d$ objectives. Given a source node $v_s$ and a goal node $v_g$ in the graph $G$, the path from $v_s$ to an intermediate node $v$ is defined as a label\footnote{MOSP literature also identifies a label as a candidate path~\cite{Ren2022, MARTINS198485, sanders_ipdps13}.} $l=(v,\hat{g})$, a tuple represented by a sequence of nodes where each node is connected to its predecessor on the path and $\hat{g}$ denotes the path cost vector from $v_s$ to $v$, calculated as the sum of the cost vectors $c(e)$ for all edges present on the path. For simplicity, we denote $v(l)$ to be the vertex and $\hat{g}(l)$ to be the cost vector contained in $l$.
+Since multiple objectives may compete, MOSP introduces a dominance check such that given two labels $l$ and $l^*$ with $d$ objectives, $l$ dominates $l^*$ (denoted $l \succeq l^*$) if and only if they share the same node ($v(l)=v(l^*)$) and $\hat{g}(l) \succeq \hat{g}(l^*)$ (i.e., $\hat{g}(l)[i] \leq \hat{g}(l^*)[i], \forall i \in {1,2,...,d}$, and $\hat{g}(l)[i] < \hat{g}(l^*)[i], \exists i \in {1,2,...,d}$). 
+All non-dominated paths from $v_s$ to $v_g$ constitute the \emph{Pareto-optimal} solution set. MOSP aims to find a \emph{cost-unique} Pareto-optimal solution set where no two labels in the subset have the same cost vector. 
 
 \begin{figure}
     \centering
@@ -82,23 +14,23 @@ All non-dominated paths from $v_s$ to $v_g$ constitute the \emph{Pareto-optimal}
 \end{figure}
 
 In a single-objective shortest path, there can be only one minimum solution label for each node in the graph. 
-As seen in Figure~\ref{fig:Label}(a), this is computed using a singular cost comparison for a given node in the graph. However, MO does not guarantee a single solution path, as multiple non-dominated labels can exist from the start node to any other node in the graph.
+As seen in Figure~\ref{fig:Label}(a), this is computed using a singular cost comparison for a given node in the graph. However, MOSP does not guarantee a single solution path, as multiple non-dominated labels can exist from the start node to any other node in the graph.
 When a new candidate label $l^*$ is discovered, a \textbf{dominance check} must be performed to verify if the accumulated cost vector for any previous labels for that node $v$ dominates the cost vector for $l^*$. The label $l^*$ must be compared with all previously found non-dominated labels to $v$, as illustrated in Figure~\ref{fig:Label}(b). If it is not dominated, then the mutually non-dominated set of labels at $v$ must be updated with the new label, possibly \textbf{pruning} existing solutions if the new label dominates them. 
 These dominance and pruning checks are expensive, especially as the number of non-dominated labels increases with the number of nodes and objectives~\cite{ijcai2023p757}.
 
-To efficiently compute the Pareto-optimal solution front, MO algorithms are developed based on the multiobjective extension of the A* algorithm designed for single-objective search~\cite{10.1145/1754399.1754400, ICAPS20paper199, 10.1145/115234.115368}. Multi-objective A* (MOA*), unlike A* that exits once the first solution is found, needs to store a set of Pareto-optimal labels to the goal node. 
+To efficiently compute the Pareto-optimal solution front, MOSP algorithms are developed based on the multiobjective extension of the A* algorithm designed for single-objective search~\cite{10.1145/1754399.1754400, ICAPS20paper199, 10.1145/115234.115368}. Multi-objective A* (MOA*), unlike A* that exits once the first solution is found, needs to store a set of Pareto-optimal labels to the goal node. 
 A New Approach to Multi-Objective A* (NAMOA*)~\cite{10.1145/1754399.1754400} and its variants EMOA*, NAMOA*-dr, LTMOA*, and LazyLTMOA* use \textbf{consistent heuristic} for the A* search to ensure that an exact set of solution labels are computed to the goal node. 
 %NAMOA* handles an arbitrary number of objectives to compute an exact set of solution paths, thus serving as the basis for the proposed MOS algorithm in this paper.  
 A heuristic vector $\hat{h}(v)$ is an \emph{admissible} heuristic {such that it dominates all Pareto-optimal solution labels from node $v$ to the goal node~\cite{10.1145/1754399.1754400}.} One method to derive this heuristic is to compute the single-source shortest path (SSSP) from the goal node for each objective. The resulting shortest paths to all nodes in the graph represent the lower bound path costs, defined as $\hat{h}(v(l))$.
-A vector $\hat{f}(l)$ denotes the estimated path cost from the start node to the goal node for a given label, calculated as $\hat{f}(l) = \hat{g}(l) + \hat{h}(v(l))$. This heuristic cost is used in MO algorithms to efficiently compute the non-dominated paths, to find a \emph{cost-unique} Pareto-optimal solution set where no two labels in the subset have the same cost vector.
+A vector $\hat{f}(l)$ denotes the estimated path cost from the start node to the goal node for a given label, calculated as $\hat{f}(l) = \hat{g}(l) + \hat{h}(v(l))$. This heuristic cost is used in MOSP algorithms to efficiently compute the non-dominated paths, to find a \emph{cost-unique} Pareto-optimal solution set where no two labels in the subset have the same cost vector.
 
-MO algorithms are a unique class of graph processing as they execute a nondeterministic number of labels for each node in the graph, and each label performs an unstructured and variable number of computations. Depending on the graph characteristics and how the objectives compete, each label per node may explore an arbitrary number of adjacent labels. For each neighbor label, a nondeterministic number of labels must be compared via dominance and pruning checks. The complexity of these operators relies on the number of candidate labels being compared, which increases with the number of nodes and objectives. Given the irregular complexity of each label processed, MO algorithms center around key data structures and operators.
+MOSP algorithms are a unique class of graph processing as they execute a nondeterministic number of labels for each node in the graph, and each label performs an unstructured and variable number of computations. Depending on the graph characteristics and how the objectives compete, each label per node may explore an arbitrary number of adjacent labels. For each neighbor label, a nondeterministic number of labels must be compared via dominance and pruning checks. The complexity of these operators relies on the number of candidate labels being compared, which increases with the number of nodes and objectives. Given the irregular complexity of each label processed, MOSP algorithms center around key data structures and operators.
 
 \vspace{0.05cm}
 \noindent \textbf{\emph{OPEN}} data structure is a queue of labels prioritized by $\hat{f}(l)$ in increasing lexicographic order of objectives. The labels can be prioritized based on the lexicographic order to guarantee that a Pareto-optimal label is extracted and processed in each iteration (or frontier in traditional graph terminology). A priority queue (PQ) data structure can be used to ensure a label with the highest chance of remaining in the final solution is processed. Other options for organizing labels include FIFO or Stack organization of labels, which introduces complexity and work efficiency tradeoffs.
 
 \vspace{0.05cm}
-\noindent \textbf{\emph{Frontier Set}} data structure $\alpha(u)$ for each node $u$ holds all non-dominated labels $l$ at node $u$. Each label in $\alpha(u)$ is a non-dominated partial solution path from $v_s$ to $u$. For illustration purposes, $\alpha(v_s)$ maintains the Pareto-optimal solution from $P$ holding the frontier set at the goal node, $v_s$. The output of the MO algorithm is the exact set of Pareto-optimal solutions in $P$.
+\noindent \textbf{\emph{Frontier Set}} data structure $\alpha(u)$ for each node $u$ holds all non-dominated labels $l$ at node $u$. Each label in $\alpha(u)$ is a non-dominated partial solution path from $v_s$ to $u$. For illustration purposes, $\alpha(v_s)$ maintains the Pareto-optimal solution from $P$ holding the frontier set at the goal node, $v_s$. The output of the MOSP algorithm is the exact set of Pareto-optimal solutions in $P$.
 
 \vspace{0.05cm}
 \noindent \textbf{\emph{NotDominated}~(l, S, cost)} operator compares the label $l$ with labels in a given set $S$ to verify if a label exists in $S$ that dominates $l$. The cost specifies whether the path-cost ($\Hat{g}$) or heuristic-cost ($\Hat{f}$) is used for the dominance checks.
@@ -107,7 +39,7 @@ It returns \emph{false} if $l$ is dominated by a label in $S$, and returns \emph
 \vspace{0.1cm}
 \noindent \textbf{\emph{Prune}~(S, l, cost)} operator searches through all labels in a given set $S$, and removes all labels in $S$ that are dominated by $l$ using path-cost ($\Hat{g}$) or heuristic-cost ($\Hat{f}$).
 
-Next, representative MO algorithms are described to illustrate the execution flow of multi-objective graph problems.
+Next, representative MOSP algorithms are described to illustrate the execution flow of multi-objective graph problems.
 
 \subsubsection{NAMOA* Algorithm}
 
@@ -115,7 +47,7 @@ Next, representative MO algorithms are described to illustrate the execution flo
 \begin{algorithm}[!ht]
 \captionsetup{font=small}
 \footnotesize
-\caption{NAMOA* MO Algorithm original}\label{alg:NAMOA}
+\caption{NAMOA* MOSP Algorithm original}\label{alg:NAMOA}
 \begin{algorithmic}[1]
     \While{OPEN $\neq \emptyset$}
         \State $l \gets$ OPEN.pop()
@@ -163,7 +95,7 @@ Once OPEN is empty, the algorithm terminates, and $P$ contains the final labels 
 \begin{algorithm}[!ht]
 \captionsetup{font=small}
 \footnotesize
-\caption{NAMOA* variant MO Algorithm}\label{alg:NAMOA2025}
+\caption{NAMOA* no prune OPEN  Algorithm}\label{alg:NAMOA2025}
 \begin{algorithmic}[1]
     \While{OPEN $\neq \emptyset$}
         \State $l \gets$ OPEN.pop()
@@ -205,7 +137,7 @@ If $l$ is \emph{not} at the goal node, all operators consistent with Algorithm~\
 \begin{algorithm}[!ht]
 \captionsetup{font=small}
 \footnotesize
-\caption{LTMOA* Linear Time MO Algorithm}\label{alg:LTMOA}
+\caption{LTMOA* Linear Time MOSP Algorithm}\label{alg:LTMOA}
 \begin{algorithmic}[1]
     \While{OPEN $\neq \emptyset$}
         
